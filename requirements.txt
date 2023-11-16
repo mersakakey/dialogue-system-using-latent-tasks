@@ -5,3 +5,4 @@ tabulate
 scikit-learn 
 torch
 matplotlib
+transformers
