@@ -52,7 +52,6 @@ conversation = ConversationChain(
     )
 
 
-
 st.set_page_config(
     page_title="対話実験サイト",
 )
@@ -87,11 +86,9 @@ match st.session_state.exam_process:
         
 
     case 1:
-        st.write("自分のことを伝える")
-
-    case 2:
+        st.write("雑談の中で，相手に自分の情報や経験，体験等を伝えてください．")
+    case 21:
         st.write("相手のことを知る")
-        st.write(st.session_state.exam_process)
     case 3:
         st.write("共感を得る")
     case 4:
@@ -104,7 +101,7 @@ match st.session_state.exam_process:
         st.write("明確なタスクがある")
     case 8:
         st.write("自由対話")
-    case 9:
+    case 2:
         st.write("""実験は終了です．まず，以下の\"ログをダウンロード\"をクリックして実験ログをダウンロードしてください．
                  その後，アンケートに回答してください．""")
         
@@ -168,9 +165,9 @@ if st.session_state.exam_process >= 1 and st.session_state.exam_process <= 8:
         user_prompt = None
 
     if user_prompt is not None:
-        st.session_state.messages.append({"role": "user", "content": user_prompt})
+        st.session_state.messages.append({"role": "user", "content": user_input})
         with st.chat_message("user"):
-            st.write(user_prompt)
+            st.write(user_input)
 
 
     if st.session_state.messages[-1]["role"] != "assistant":
