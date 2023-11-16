@@ -1,8 +1,8 @@
 streamlit
+transformers
 langchain
 openai
 tabulate
 scikit-learn 
 torch
 matplotlib
-transformers
