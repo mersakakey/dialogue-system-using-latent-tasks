@@ -87,7 +87,7 @@ match st.session_state.exam_process:
 
     case 1:
         st.write("雑談の中で，相手に自分の情報や経験，体験等を伝えてください．")
-    case 21:
+    case 2:
         st.write("相手のことを知る")
     case 3:
         st.write("共感を得る")
@@ -101,7 +101,7 @@ match st.session_state.exam_process:
         st.write("明確なタスクがある")
     case 8:
         st.write("自由対話")
-    case 2:
+    case 9:
         st.write("""実験は終了です．まず，以下の\"ログをダウンロード\"をクリックして実験ログをダウンロードしてください．
                  その後，アンケートに回答してください．""")
         
