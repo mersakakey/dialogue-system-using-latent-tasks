@@ -1,9 +1,6 @@
 import pandas as pd
-import numpy as np
 from sklearn.model_selection import train_test_split
-from tabulate import tabulate
 from torch.utils.data import Dataset, DataLoader
-import matplotlib.pyplot as plt
 import torch
 
 from name_to_prompt import name_to_prompt
