@@ -6,3 +6,4 @@ tabulate
 scikit-learn 
 torch
 matplotlib
+huggingface_hub

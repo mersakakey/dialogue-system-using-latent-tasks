@@ -16,6 +16,10 @@ from langchain import PromptTemplate
 
 from latent_task_module import load_model, extract_latent_task, p_to_prompt
 
+from huggingface_hub.hf_api import HfFolder
+
+HfFolder.save_token(st.secrets.HuggingfaceToken.token)
+
 def get_state(): 
      if "state" not in st.session_state: 
          st.session_state.state = {"memory": ConversationBufferMemory(memory_key="chat_history")} 
