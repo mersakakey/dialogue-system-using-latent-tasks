@@ -4,15 +4,7 @@ import langchain
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory
-from langchain.schema import messages_to_dict
-from langchain.prompts.chat import (
-    ChatPromptTemplate,
-    MessagesPlaceholder, 
-    SystemMessagePromptTemplate,
-    HumanMessagePromptTemplate,
-)
-from langchain.schema import messages_from_dict, messages_to_dict
-from langchain import PromptTemplate
+from langchain.prompts import PromptTemplate
 
 from latent_task_module import load_model, extract_latent_task, p_to_prompt
 
