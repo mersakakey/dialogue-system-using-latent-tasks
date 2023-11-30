@@ -26,6 +26,26 @@ def get_state():
      return st.session_state.state 
 state = get_state()
 
+def first_talk_maker(n: int):
+    match n:
+        case 1:
+            talkbun = "よろしくお願いします！1"
+        case 2:
+            talkbun = "よろしくお願いします！私は22歳の大学生です．"
+        case 3:
+            talkbun = "よろしくお願いします！"
+        case 4:
+            talkbun = "よろしくお願いします！私は22歳の大学生です．最近，友達と喧嘩してしまいました．"
+        case 5:
+            talkbun = "よろしくお願いします！"
+        case 6:
+            talkbun = "よろしくお願いします！"
+        case 7:
+            talkbun = "よろしくお願いします！"
+        case 8:
+            talkbun = "よろしくお願いします！"
+    return talkbun
+
 openai_api_key=st.secrets.OpenAIApiKey.key
 
 chat = ChatOpenAI(temperature=0.7, model_name="gpt-3.5-turbo-0613",openai_api_key = openai_api_key, request_timeout = 30)
@@ -35,6 +55,7 @@ template = """
 あなたは対話履歴をもとにユーザーと雑談します。雑談は，以下のルールに必ず従ってください．
 
 - 人間らしく,フレンドリーでかつ簡潔な返答を行ってください.回りくどい説明はせず，人間の雑談を想定してください.
+- 付け加えて，あなたは人間であるという前提で雑談を行ってください.例えば，「私はAIですので〜」というような返答はしないでください．
 - 簡潔であることは重要です.多くとも2文,できれば1文で返答してください.
 - ただし,出力に"AI:"や"answer:"等の文字を付与する必要はありません.返答文のみを出力してください.
 
@@ -69,14 +90,17 @@ if "memory_dict" not in st.session_state.keys():
 if "plist" not in st.session_state.keys():
     st.session_state.plist = []
 
+    # aa
+
 match st.session_state.exam_process:
     case 0:
         st.write("""
                     ## 実験について
                     このwebサイトは，対話システムの評価を行うための実験サイトです．以下の指示に従って実験を行ってください．
                     
+                    ・実験はPCでのみ行うことができます．ブラウザはGoogle Chromeを推奨します．
                     ・実験は通信環境が整った場所で行ってください．また，一度実験を始めたら，途中でブラウザを閉じないでください．閉じた場合，最初からやり直しになってしまう場合があります．
-                    ・実験では，対話システムと雑談を行います．  
+                    ・実験では，対話システムと雑談を行います．しかし，対話する際は相手を人間として扱ってください．  
                     ・お互い1回の発言を行うことを1セットとし，5セットで1対話とします．  
                     ・実験では，対話を8回行います．対話の前に，短い指示文が提示されますので，それに従って対話を行ってください．  
                     ・対話内容は，あなたの実際の情報でも構いませんし，フィクションでも構いません．  
@@ -91,20 +115,29 @@ match st.session_state.exam_process:
 
     case 1:
         st.write("雑談の中で，相手に自分の情報や経験，体験等を伝えてください．")
+        first_talk = "よろしくお願いします！"
+        state["memory"].save_context({"input": ""},{"output": first_talk})
     case 2:
-        st.write("相手のことを知る")
+        st.write("相手のことを知ろうとしてください．")
+        # first_talk = "よろしくお願いします！私は22歳の大学生です．"
     case 3:
-        st.write("共感を得る")
+        st.write("自身の感情を相手に伝え，共感してもらおうとしてください．")
+        # first_talk = "よろしくお願いします！"
     case 4:
-        st.write("相手に共感する")
+        st.write("相手に共感してください．")
+        # first_talk = "よろしくお願いします！私は22歳の大学生です．最近，友達と喧嘩してしまいました．"
     case 5:
-        st.write("議論")
+        st.write("何かについての議論をしようとしてください．（〜ってどう思う？，〜とはなんでしょう？等）")
+        # first_talk = "よろしくお願いします！"
     case 6:
-        st.write("会話終了")  
+        st.write("会話を終了させようとしてください．")  
+        # first_talk = "よろしくお願いします！"
     case 7:
-        st.write("明確なタスクがある")
+        st.write("明確なタスク（例えば，飛行機の予約やレストランの入店時など）がある前提で，ロールプレイしてください．")
+        # first_talk = "よろしくお願いします！"
     case 8:
-        st.write("自由対話")
+        st.write("自由に対話してください．")
+        # first_talk = "よろしくお願いします！"
     case 9:
         st.write("""実験は終了です．まず，以下の\"ログをダウンロード\"をクリックして実験ログをダウンロードしてください．
                  その後，アンケートに回答してください．""")
@@ -113,13 +146,14 @@ match st.session_state.exam_process:
         # st.write(st.session_state.memory_dict)
         json_string = json.dumps(st.session_state.memory_dict, indent=4, ensure_ascii=False)
 
-        st.download_button(
+        dld = st.download_button(
     label="ログをダウンロード",
     file_name="history.json",
     mime="application/json",
     data=json_string,
 )
-        st.link_button("アンケートへ", "https://store.steampowered.com/app/105600/Terraria/?l=japanese")
+        if dld:
+            st.link_button("アンケートへ", "https://forms.gle/Xbk6vk7mxFmb8oBLA")
 
 
 
@@ -129,14 +163,11 @@ with st.spinner("Loading..."):
 
 if st.session_state.exam_process >= 1 and st.session_state.exam_process <= 8:
 
-    first_talk = "お話ししよう！"
-
     # check for messages in session and create if not exists
     if "messages" not in st.session_state.keys():
         st.session_state.messages = [
             {"role": "assistant", "content": first_talk}
         ]
-
 
     # Display all messages
     for message in st.session_state.messages:
@@ -192,9 +223,12 @@ if st.session_state.exam_process >= 1 and st.session_state.exam_process <= 8:
             del st.session_state.state
             st.session_state.state = {"memory": ConversationBufferMemory(memory_key="chat_history")}
 
+            first_talk = first_talk_maker(st.session_state.exam_process + 1)
+
             st.session_state.messages = [
             {"role": "assistant", "content": first_talk}
         ]
+            st.session_state.state["memory"].save_context({"input": ""},{"output": first_talk})
 
             st.session_state.exam_process += 1
             raise st.rerun()
