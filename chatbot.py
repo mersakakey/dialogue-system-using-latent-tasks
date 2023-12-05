@@ -1,4 +1,5 @@
 import json
+import os
 import streamlit as st
 import langchain
 from langchain.chat_models import ChatOpenAI
@@ -10,7 +11,9 @@ from latent_task_module import load_model, extract_latent_task, p_to_prompt
 
 from huggingface_hub.hf_api import HfFolder
 
-HfFolder.save_token(st.secrets.HuggingfaceToken.token)
+hf_token = os.getenv("Huggingface_token")
+
+HfFolder.save_token(hf_token)
 
 def get_state(): 
      if "state" not in st.session_state: 
@@ -36,11 +39,13 @@ def first_talk_maker(n: int):
             talkbun = "よろしくお願いします！"
         case 8:
             talkbun = "よろしくお願いします！"
+        case 9:
+            talkbun = "よろしくお願いします！"
     return talkbun
 
-openai_api_key=st.secrets.OpenAIApiKey.key
+openai_api_key=os.getenv("OPENAI_API_KEY")
 
-chat = ChatOpenAI(temperature=0.7, model_name="gpt-3.5-turbo-0613",openai_api_key = openai_api_key, request_timeout = 30)
+chat = ChatOpenAI(temperature=0.7, model_name="gpt-4-0613",openai_api_key = openai_api_key, request_timeout = 30)
 
 # テンプレートを定義
 template = """
@@ -88,48 +93,43 @@ match st.session_state.exam_process:
     case 0:
         st.write("""
                     ## 実験について
+                 
                     このwebサイトは，対話システムの評価を行うための実験サイトです．以下の指示に従って実験を行ってください．
                     
-                    ・実験はPCでのみ行うことができます．ブラウザはGoogle Chromeを推奨します．
-                    ・実験は通信環境が整った場所で行ってください．また，一度実験を始めたら，途中でブラウザを閉じないでください．閉じた場合，最初からやり直しになってしまう場合があります．
-                    ・実験では，対話システムと雑談を行います．しかし，対話する際は相手を人間として扱ってください．  
-                    ・お互い1回の発言を行うことを1セットとし，5セットで1対話とします．  
-                    ・実験では，対話を8回行います．対話の前に，短い指示文が提示されますので，それに従って対話を行ってください．  
-                    ・対話内容は，あなたの実際の情報でも構いませんし，フィクションでも構いません．  
+                    - 実験はPCでのみ行うことができます．ブラウザはGoogle Chromeを推奨します．
+                    - 実験は通信環境が整った場所で行ってください．また，一度実験を始めたら，途中でブラウザを閉じないでください．閉じた場合，最初からやり直しになってしまう場合があります．
+                    - 実験では，対話システムと雑談を行います．しかし，対話する際は相手を人間として扱ってください．  
+                    - お互い1回の発言を行うことを1セットとし，5セットで1対話とします．  
+                    - 実験では，対話を8回行います．対話の前に，短い指示文が提示されますので，それに従って対話を行ってください．  
+                    - 対話内容は，あなたの実際の情報でも構いませんし，フィクションでも構いません．  
 
                     ## 情報の取り扱いについて  
-                    ・本実験内での対話は保存され，研究目的でのみ利用されます．  
-                    ・本実験で得た情報は，個人を特定できないように加工された上で，研究成果として発表される可能性があります．  
-                    ・本実験で得た情報は，研究目的以外に利用されることはなく，適切に管理されます．   
-                    ・本実験で得た情報の保存期間は実験日〜2024年3月31日までとし，保存期間を過ぎた情報は廃棄します．  
+                 
+                    - 本実験内での対話は保存され，研究目的でのみ利用されます．  
+                    - 本実験で得た情報は，個人を特定できないように加工された上で，研究成果として発表される可能性があります．  
+                    - 本実験で得た情報は，研究目的以外に利用されることはなく，適切に管理されます．   
+                    - 本実験で得た情報の保存期間は実験日〜2024年3月31日までとし，保存期間を過ぎた情報は廃棄します．  
                     """)
         
 
     case 1:
-        st.write("雑談の中で，相手に自分の情報や経験，体験等を伝えてください．")
+        st.info("雑談の中で，相手に自分の情報や経験，体験等を伝えてください．", icon="ℹ️")
         first_talk = "よろしくお願いします！"
         state["memory"].save_context({"input": ""},{"output": first_talk})
     case 2:
-        st.write("相手のことを知ろうとしてください．")
-        # first_talk = "よろしくお願いします！私は22歳の大学生です．"
+        st.info("相手のことを知ろうとしてください．", icon="ℹ️")
     case 3:
-        st.write("自身の感情を相手に伝え，共感してもらおうとしてください．")
-        # first_talk = "よろしくお願いします！"
+        st.info("自身の感情を相手に伝え，共感してもらおうとしてください．", icon="ℹ️")
     case 4:
-        st.write("相手に共感してください．")
-        # first_talk = "よろしくお願いします！私は22歳の大学生です．最近，友達と喧嘩してしまいました．"
+        st.info("相手に共感してください．", icon="ℹ️")
     case 5:
-        st.write("何かについての議論をしようとしてください．（〜ってどう思う？，〜とはなんでしょう？等）")
-        # first_talk = "よろしくお願いします！"
+        st.info("何かについての議論をしようとしてください．（〜ってどう思う？，〜とはなんでしょう？等）", icon="ℹ️")
     case 6:
-        st.write("会話を終了させようとしてください．")  
-        # first_talk = "よろしくお願いします！"
+        st.info("会話を終了させようとしてください．", icon="ℹ️")
     case 7:
-        st.write("明確なタスク（例えば，飛行機の予約やレストランの入店時など）がある前提で，ロールプレイしてください．")
-        # first_talk = "よろしくお願いします！"
+        st.info("明確なタスク（例えば，飛行機の予約やレストランの入店時など）がある前提で，ロールプレイしてください．", icon="ℹ️")
     case 8:
-        st.write("自由に対話してください．")
-        # first_talk = "よろしくお願いします！"
+        st.info("自由に対話してください．", icon="ℹ️")
     case 9:
         st.write("""実験は終了です．まず，以下の\"ログをダウンロード\"をクリックして実験ログをダウンロードしてください．
                  その後，アンケートに回答してください．""")
@@ -151,7 +151,7 @@ match st.session_state.exam_process:
 
 with st.spinner("Loading..."):
     if "latent_task_model" not in st.session_state.keys():
-        st.session_state.latent_task_model, st.session_state.latent_task_tokenizer = load_model()
+        st.session_state.latent_task_model, st.session_state.latent_task_tokenizer = load_model(hf_token)
 
 if st.session_state.exam_process >= 1 and st.session_state.exam_process <= 8:
 

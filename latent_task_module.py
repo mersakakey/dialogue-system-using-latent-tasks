@@ -52,10 +52,10 @@ def input_and_predict_with_softmax(model, loader, device, criterion=None):
 
   return pred
 
-def load_model():
-    model = AutoModelForSequenceClassification.from_pretrained("mersakakey/autotrain-latent_tasks_classification-73664139317", token=True)
+def load_model(hf_token):
+    model = AutoModelForSequenceClassification.from_pretrained("mersakakey/autotrain-latent_tasks_classification-73664139317", token = hf_token)
 
-    tokenizer = AutoTokenizer.from_pretrained("mersakakey/autotrain-latent_tasks_classification-73664139317", token = True)
+    tokenizer = AutoTokenizer.from_pretrained("mersakakey/autotrain-latent_tasks_classification-73664139317", token = hf_token)
 
     return model, tokenizer
 
