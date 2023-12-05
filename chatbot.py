@@ -201,7 +201,7 @@ if st.session_state.exam_process >= 1 and st.session_state.exam_process <= 8:
         with st.chat_message("assistant"):
             with st.spinner("Loading..."):
                 ai_response = conversation.predict(input=user_prompt)
-                print("history:",state["memory"])
+                # print("history:",state["memory"])
                 st.write(ai_response)
         new_ai_message = {"role": "assistant", "content": ai_response}
         st.session_state.messages.append(new_ai_message)
@@ -210,7 +210,7 @@ if st.session_state.exam_process >= 1 and st.session_state.exam_process <= 8:
     if len(st.session_state.messages) >= 10:
         if st.button("次へ"):
             st.session_state.memory_dict.append(state["memory"].dict())
-            print("appended!")
+            # print("appended!")
 
             del st.session_state.state
             st.session_state.state = {"memory": ConversationBufferMemory(memory_key="chat_history")}
@@ -225,7 +225,7 @@ if st.session_state.exam_process >= 1 and st.session_state.exam_process <= 8:
             st.session_state.exam_process += 1
             raise st.rerun()
             
-    st.write(st.session_state.exam_process, len(st.session_state.messages))
+    # st.write(st.session_state.exam_process, len(st.session_state.messages))
 
 if st.session_state.exam_process == 0:
     if st.button("次へ"):
