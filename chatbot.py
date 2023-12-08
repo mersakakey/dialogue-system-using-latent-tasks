@@ -16,9 +16,9 @@ hf_token = os.getenv("Huggingface_token")
 HfFolder.save_token(hf_token)
 
 def get_state(): 
-     if "state" not in st.session_state: 
-         st.session_state.state = {"memory": ConversationBufferMemory(memory_key="chat_history")} 
-     return st.session_state.state 
+     if "memory" not in st.session_state: 
+         st.session_state.memory = {"memory": ConversationBufferMemory(memory_key="chat_history")} 
+     return st.session_state.memory 
 state = get_state()
 
 def first_talk_maker(n: int):
@@ -45,7 +45,7 @@ def first_talk_maker(n: int):
 
 openai_api_key=os.getenv("OPENAI_API_KEY")
 
-chat = ChatOpenAI(temperature=0.7, model_name="gpt-4-0613",openai_api_key = openai_api_key, request_timeout = 30)
+chat = ChatOpenAI(temperature=0.7, model_name="gpt-4", openai_api_key = openai_api_key, request_timeout = 30)
 
 # テンプレートを定義
 template = """
@@ -87,8 +87,6 @@ if "memory_dict" not in st.session_state.keys():
 if "plist" not in st.session_state.keys():
     st.session_state.plist = []
 
-    # aa
-
 match st.session_state.exam_process:
     case 0:
         st.write("""
@@ -115,7 +113,7 @@ match st.session_state.exam_process:
     case 1:
         st.info("雑談の中で，相手に自分の情報や経験，体験等を伝えてください．", icon="ℹ️")
         first_talk = "よろしくお願いします！"
-        state["memory"].save_context({"input": ""},{"output": first_talk})
+        state["memory"].save_context({"input": "first_user_talk"},{"output": first_talk})
     case 2:
         st.info("相手のことを知ろうとしてください．", icon="ℹ️")
     case 3:
@@ -200,6 +198,9 @@ if st.session_state.exam_process >= 1 and st.session_state.exam_process <= 8:
     if st.session_state.messages[-1]["role"] != "assistant":
         with st.chat_message("assistant"):
             with st.spinner("Loading..."):
+                if user_prompt is None:
+                    user_prompt = "あなたはユーザーの発言が聞き取れませんでした．ユーザーに，今の発言をもう一度繰り返すように聞き返してください．"
+
                 ai_response = conversation.predict(input=user_prompt)
                 # print("history:",state["memory"])
                 st.write(ai_response)
@@ -212,15 +213,15 @@ if st.session_state.exam_process >= 1 and st.session_state.exam_process <= 8:
             st.session_state.memory_dict.append(state["memory"].dict())
             # print("appended!")
 
-            del st.session_state.state
-            st.session_state.state = {"memory": ConversationBufferMemory(memory_key="chat_history")}
+            del st.session_state.memory
+            st.session_state.memory = {"memory": ConversationBufferMemory(memory_key="chat_history")}
 
             first_talk = first_talk_maker(st.session_state.exam_process + 1)
 
             st.session_state.messages = [
             {"role": "assistant", "content": first_talk}
         ]
-            st.session_state.state["memory"].save_context({"input": ""},{"output": first_talk})
+            st.session_state.memory["memory"].save_context({"input": "first_user_talk"},{"output": first_talk})
 
             st.session_state.exam_process += 1
             raise st.rerun()
