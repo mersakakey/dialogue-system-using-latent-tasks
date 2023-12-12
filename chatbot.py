@@ -24,7 +24,7 @@ state = get_state()
 def first_talk_maker(n: int):
     match n:
         case 1:
-            talkbun = "よろしくお願いします！1"
+            talkbun = "よろしくお願いします！"
         case 2:
             talkbun = "よろしくお願いします！私は22歳の大学生です．"
         case 3:
@@ -41,11 +41,13 @@ def first_talk_maker(n: int):
             talkbun = "よろしくお願いします！"
         case 9:
             talkbun = "よろしくお願いします！"
+        case _:
+            talkbun = "よろしくお願いします！"
     return talkbun
 
 openai_api_key=os.getenv("OPENAI_API_KEY")
 
-chat = ChatOpenAI(temperature=0.7, model_name="gpt-4", openai_api_key = openai_api_key, request_timeout = 30)
+chat = ChatOpenAI(temperature=0.7, model_name="gpt-4", openai_api_key = openai_api_key, request_timeout = 120)
 
 # テンプレートを定義
 template = """
@@ -97,9 +99,10 @@ match st.session_state.exam_process:
                     - 実験はPCでのみ行うことができます．ブラウザはGoogle Chromeを推奨します．
                     - 実験は通信環境が整った場所で行ってください．また，一度実験を始めたら，途中でブラウザを閉じないでください．閉じた場合，最初からやり直しになってしまう場合があります．
                     - 実験では，対話システムと雑談を行います．しかし，対話する際は相手を人間として扱ってください．  
-                    - お互い1回の発言を行うことを1セットとし，5セットで1対話とします．  
+                    - お互い交互に1回の発言を行うことを1セットとし，5セットで1対話とします．メッセージは連続で送らないでください．
                     - 実験では，対話を8回行います．対話の前に，短い指示文が提示されますので，それに従って対話を行ってください．  
-                    - 対話内容は，あなたの実際の情報でも構いませんし，フィクションでも構いません．  
+                    - 対話内容は，あなたの実際の情報でも構いませんし，フィクションでも構いません．
+                    - エラー等で実験が中断されてしまった場合は，ブラウザを更新し，実験を途中から再開してください．  
 
                     ## 情報の取り扱いについて  
                  
@@ -112,22 +115,29 @@ match st.session_state.exam_process:
 
     case 1:
         st.info("雑談の中で，相手に自分の情報や経験，体験等を伝えてください．", icon="ℹ️")
-        first_talk = "よろしくお願いします！"
+        first_talk = first_talk_maker(st.session_state.exam_process)
         state["memory"].save_context({"input": "first_user_talk"},{"output": first_talk})
     case 2:
         st.info("相手のことを知ろうとしてください．", icon="ℹ️")
+        first_talk = first_talk_maker(st.session_state.exam_process)
     case 3:
         st.info("自身の感情を相手に伝え，共感してもらおうとしてください．", icon="ℹ️")
+        first_talk = first_talk_maker(st.session_state.exam_process)
     case 4:
         st.info("相手に共感してください．", icon="ℹ️")
+        first_talk = first_talk_maker(st.session_state.exam_process)
     case 5:
         st.info("何かについての議論をしようとしてください．（〜ってどう思う？，〜とはなんでしょう？等）", icon="ℹ️")
+        first_talk = first_talk_maker(st.session_state.exam_process)
     case 6:
         st.info("会話を終了させようとしてください．", icon="ℹ️")
+        first_talk = first_talk_maker(st.session_state.exam_process)
     case 7:
         st.info("明確なタスク（例えば，飛行機の予約やレストランの入店時など）がある前提で，ロールプレイしてください．", icon="ℹ️")
+        first_talk = first_talk_maker(st.session_state.exam_process)
     case 8:
         st.info("自由に対話してください．", icon="ℹ️")
+        first_talk = first_talk_maker(st.session_state.exam_process)
     case 9:
         st.write("""実験は終了です．まず，以下の\"ログをダウンロード\"をクリックして実験ログをダウンロードしてください．
                  その後，アンケートに回答してください．""")
@@ -139,11 +149,11 @@ match st.session_state.exam_process:
         dld = st.download_button(
     label="ログをダウンロード",
     file_name="history.json",
+
     mime="application/json",
     data=json_string,
 )
-        if dld:
-            st.link_button("アンケートへ", "https://forms.gle/Xbk6vk7mxFmb8oBLA")
+        st.link_button("アンケートへ", "https://forms.gle/Xbk6vk7mxFmb8oBLA")
 
 
 
@@ -229,6 +239,49 @@ if st.session_state.exam_process >= 1 and st.session_state.exam_process <= 8:
     # st.write(st.session_state.exam_process, len(st.session_state.messages))
 
 if st.session_state.exam_process == 0:
-    if st.button("次へ"):
+    if st.button("実験を開始"):
         st.session_state.exam_process += 1
         raise st.rerun()
+    
+    
+    option = st.selectbox(
+    "実験を途中から再開する場合は以下から選択してください．",
+    (
+        "最初から",
+        "雑談の中で，相手に自分の情報や経験，体験等を伝えてください．",
+        "相手のことを知ろうとしてください．",
+        "自身の感情を相手に伝え，共感してもらおうとしてください．",
+        "相手に共感してください．",
+        "何かについての議論をしようとしてください．（〜ってどう思う？，〜とはなんでしょう？等）",
+        "会話を終了させようとしてください．",
+        "明確なタスク（例えば，飛行機の予約やレストランの入店時など）がある前提で，ロールプレイしてください．",
+        "自由に対話してください．"
+    ),
+    index=None,
+    placeholder="最初から"
+)
+    if st.button("実験を途中から再開"):
+        match option:
+            case "最初から":
+                st.session_state.exam_process = 0
+            case "雑談の中で，相手に自分の情報や経験，体験等を伝えてください．":
+                st.session_state.exam_process = 1
+            case "相手のことを知ろうとしてください．":
+                st.session_state.exam_process = 2
+            case "自身の感情を相手に伝え，共感してもらおうとしてください．":
+                st.session_state.exam_process = 3
+            case "相手に共感してください．":
+                st.session_state.exam_process = 4
+            case "何かについての議論をしようとしてください．（〜ってどう思う？，〜とはなんでしょう？等）":
+                st.session_state.exam_process = 5
+            case "会話を終了させようとしてください．":
+                st.session_state.exam_process = 6
+            case "明確なタスク（例えば，飛行機の予約やレストランの入店時など）がある前提で，ロールプレイしてください．":
+                st.session_state.exam_process = 7
+            case "自由に対話してください．":
+                st.session_state.exam_process = 8
+            case _:
+                st.session_state.exam_process = 0
+
+        raise st.rerun()
+        
