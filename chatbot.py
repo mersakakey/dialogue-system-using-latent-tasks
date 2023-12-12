@@ -154,8 +154,11 @@ match st.session_state.exam_process:
     data=json_string,
 )
         st.link_button("アンケートへ", "https://forms.gle/Xbk6vk7mxFmb8oBLA")
-
-
+    
+    case _:
+        st.session_state.exam_process = 0
+        print("error!")
+        raise st.rerun()
 
 with st.spinner("Loading..."):
     if "latent_task_model" not in st.session_state.keys():
