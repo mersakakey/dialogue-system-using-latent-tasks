@@ -9,11 +9,11 @@ from langchain.prompts import PromptTemplate
 
 from latent_task_module import load_model, extract_latent_task, p_to_prompt
 
-from huggingface_hub.hf_api import HfFolder
+# from huggingface_hub.hf_api import HfFolder
 
-hf_token = os.getenv("Huggingface_token")
+# hf_token = os.getenv("Huggingface_token")
 
-HfFolder.save_token(hf_token)
+# HfFolder.save_token(hf_token)
 
 def get_state(): 
      if "memory" not in st.session_state: 
@@ -58,6 +58,15 @@ template = """
 - 簡潔であることは重要です.多くとも2文,できれば1文で返答してください.
 - ただし,出力に"AI:"や"answer:"等の文字を付与する必要はありません.返答文のみを出力してください.
 
+なお，ユーザーは以下のいずれかの「潜在タスク」を持っています．ユーザーが持っている「潜在タスク」を読み取り，それを考慮した雑談を行なってください．
+- 自分ことを伝える：ユーザーは自分のことを伝えようとしているので，あなたは聞き手に回ったり質問してください．
+- 相手のことを知る：あなたのことを知ろうとしているので，あなたのことを話してください．ただし，あなたは人間であるという前提で話してください．
+- 共感を得る：ユーザーはあなたに共感して欲しいので，具体的なアドバイスではなく，共感してあげてください．
+- 共感する：ユーザーはあなたに共感しています．あなたはあなた自身の感情を表出させるような発言をしてください．
+- 議論：ユーザーは話題に出しているものについて議論したがっています．知識があるならば，自分の意見を話し，議論に参加してください．
+- 会話終了：ユーザーはあまり話したがっていません．話題を変えるか，会話を終わらせてください．
+- 明確なタスクがある：ユーザーに明確なタスクがあるので，そのタスクを達成できるよう，ロールプレイしてください．
+ 
 history: {chat_history}  
 question: {input}
 """
@@ -86,8 +95,8 @@ if "exam_process" not in st.session_state.keys():
 if "memory_dict" not in st.session_state.keys():
     st.session_state.memory_dict = []
 
-if "plist" not in st.session_state.keys():
-    st.session_state.plist = []
+# if "plist" not in st.session_state.keys():
+#     st.session_state.plist = []
 
 match st.session_state.exam_process:
     case 0:
@@ -142,7 +151,7 @@ match st.session_state.exam_process:
         st.write("""実験は終了です．まず，以下の\"ログをダウンロード\"をクリックして実験ログをダウンロードしてください．
                  その後，アンケートに回答してください．""")
         
-        st.session_state.memory_dict.append({"p":st.session_state.plist})
+        # st.session_state.memory_dict.append({"p":st.session_state.plist})
         # st.write(st.session_state.memory_dict)
         json_string = json.dumps(st.session_state.memory_dict, indent=4, ensure_ascii=False)
 
@@ -160,9 +169,9 @@ match st.session_state.exam_process:
         print("error!")
         raise st.rerun()
 
-with st.spinner("Loading..."):
-    if "latent_task_model" not in st.session_state.keys():
-        st.session_state.latent_task_model, st.session_state.latent_task_tokenizer = load_model(hf_token)
+# with st.spinner("Loading..."):
+#     if "latent_task_model" not in st.session_state.keys():
+#         st.session_state.latent_task_model, st.session_state.latent_task_tokenizer = load_model(hf_token)
 
 if st.session_state.exam_process >= 1 and st.session_state.exam_process <= 8:
 
@@ -184,20 +193,20 @@ if st.session_state.exam_process >= 1 and st.session_state.exam_process <= 8:
     
 
     if user_input is not None:
-        p = extract_latent_task(user_input, st.session_state.latent_task_model, st.session_state.latent_task_tokenizer)
+        # p = extract_latent_task(user_input, st.session_state.latent_task_model, st.session_state.latent_task_tokenizer)
 
-        latent_task_categories, latent_task_prompt = p_to_prompt(p)
+        # latent_task_categories, latent_task_prompt = p_to_prompt(p)
 
-        emb_prompt = f"""
+        # emb_prompt = f"""
 
-        latent_task_categories: {latent_task_categories}
-        prompt: {latent_task_prompt}
-        """
+        # latent_task_categories: {latent_task_categories}
+        # prompt: {latent_task_prompt}
+        # """
 
-        converted_list_of_p = p.tolist()
+        # converted_list_of_p = p.tolist()
 
-        user_prompt = user_input + emb_prompt
-        st.session_state.plist.append({"p":converted_list_of_p, "user_prompt":user_prompt, "latent_task_categories":latent_task_categories})
+        user_prompt = user_input
+        # st.session_state.plist.append({"p":converted_list_of_p, "user_prompt":user_prompt, "latent_task_categories":latent_task_categories})
 
     else:
         user_prompt = None
@@ -213,7 +222,7 @@ if st.session_state.exam_process >= 1 and st.session_state.exam_process <= 8:
             with st.spinner("Loading..."):
                 if user_prompt is None:
                     user_prompt = "あなたはユーザーの発言が聞き取れませんでした．ユーザーに，今の発言をもう一度繰り返すように聞き返してください．"
-
+                # print(user_prompt)
                 ai_response = conversation.predict(input=user_prompt)
                 # print("history:",state["memory"])
                 st.write(ai_response)
