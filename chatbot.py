@@ -7,7 +7,7 @@ from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
 
-from latent_task_module import load_model, extract_latent_task, p_to_prompt
+# from latent_task_module import load_model, extract_latent_task, p_to_prompt
 
 # from huggingface_hub.hf_api import HfFolder
 
