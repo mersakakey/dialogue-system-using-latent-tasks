@@ -162,7 +162,7 @@ match st.session_state.exam_process:
     mime="application/json",
     data=json_string,
 )
-        st.link_button("アンケートへ", "https://forms.gle/Xbk6vk7mxFmb8oBLA")
+        st.link_button("アンケートへ", "https://forms.gle/1SsZxFRexnPVe7NG6")
     
     case _:
         st.session_state.exam_process = 0
